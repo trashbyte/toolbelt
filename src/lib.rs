@@ -3,8 +3,11 @@ extern crate cgmath;
 use cgmath::{Vector3, Matrix4, Deg, Point3, dot, EuclideanSpace, Transform as CgTransform};
 
 pub mod aabb;
-pub mod transform;
+pub mod color;
 pub mod noise;
+pub mod transform;
+pub mod paths;
+pub mod curve;
 
 pub use transform::Transform;
 
@@ -50,6 +53,10 @@ pub fn view_to_frustum(pitch: f32, yaw: f32, fov: Deg<f32>, aspect: f32, near_z:
     FrustumPlanes { left, right, bottom, top, front, rear }
 }
 
+pub fn lerp(a: f32, b: f32, alpha: f32) -> f32 {
+    (a * (1.0 - alpha)) + (b * alpha)
+}
+
 #[allow(dead_code)]
 pub fn aabb_plane_intersection(bmin: Point3<f32>, bmax: Point3<f32>, p: Plane) -> bool {
     // Convert AABB to center-extents representation
@@ -80,3 +87,35 @@ pub fn aabb_frustum_intersection(bmin: Point3<f32>, bmax: Point3<f32>, p: Frustu
     }
     true
 }
+
+pub fn point_box_intersection(point: [f32; 2], box_mins: [f32; 2], box_maxes: [f32; 2]) -> bool {
+    point[0] >= box_mins[0] && point[0] <= box_maxes[0] && point[1] >= box_mins[1] && point[1] <= box_maxes[1]
+}
+
+pub fn format_bytes(bytes: u32, digits: u32) -> String {
+    if bytes < 1024 {
+        let s = bytes.to_string();
+        if s.len() > digits as usize {
+            if s.chars().nth(3).unwrap() == '.' { s[0..3].to_string() + " B" }
+            else { s[0..4].to_string() + " B" }
+        }
+        else { s + " B" }
+    }
+    else if bytes < 1024*1024 {
+        let s = (bytes as f32 / 1024.0).to_string();
+        if s.len() > digits as usize {
+            if s.chars().nth(3).unwrap() == '.' { s[0..3].to_string() + " kB" }
+            else { s[0..4].to_string() + " kB" }
+        }
+        else { s + " kB" }
+    }
+    else {
+        let s = (bytes as f32 / (1024.0*1024.0)).to_string();
+        if s.len() > digits as usize {
+            if s.chars().nth(3).unwrap() == '.' { s[0..3].to_string() + " MB" }
+            else { s[0..4].to_string() + " MB" }
+        }
+        else { s + " MB" }
+    }
+}
+

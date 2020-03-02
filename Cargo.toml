@@ -1,7 +1,7 @@
 [package]
 name = "toolbelt"
 description = "a collection of simple rust utilities"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["trashbyte <github@trashbyte.io>"]
 edition = "2018"
 repository = "https://github.com/trashbyte/toolbelt"
@@ -12,3 +12,4 @@ keywords = ["tools", "utilities", "utils"]
 [dependencies]
 cgmath = { version = "0.17.0", features = [ "swizzle" ] }
 noise = "0.6.0"
+walkdir = "2.3.1"

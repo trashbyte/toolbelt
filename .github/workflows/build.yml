@@ -41,11 +41,37 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
 
+      - run: mv cobertura.xml test-coverage.xml
+
       - name: Archive code coverage results
         uses: actions/upload-artifact@v1
         with:
-          name: code-coverage-report
-          path: cobertura.xml
+          name: coverage-report
+          path: test-coverage.xml
+  doc-coverage:
+    name: doc-coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run rustdoc and update coverage
+        run: |
+          RUSTDOCFLAGS="-Z unstable-options --show-coverage" cargo doc --no-deps > doc-coverage.txt && \
+          PERCENT=$( cat doc-coverage.txt | grep "| Total" | cut -d '|' -f 5 | sed -e 's/ *//g' ) && \
+          curl --header "Content-Type: application/json" --request POST --data "{\"name\":\"toolbelt\",\"percent\":\"${PERCENT}\"}" https://4yvh5mu5bk.execute-api.us-west-2.amazonaws.com/test
+
+      - name: Archive doc coverage results
+        uses: actions/upload-artifact@v1
+        with:
+          name: coverage-report
+          path: doc-coverage.txt
   clippy_check:
     name: clippy
     runs-on: ubuntu-latest

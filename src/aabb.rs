@@ -126,3 +126,26 @@ impl AABB {
         self.upper.z = float_max(z1, z2);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::AABB;
+    use cgmath::Point3;
+
+    macro_rules! assert_eq_float {
+        ($a:expr, $b:expr) => { assert!((($a) - ($b)).abs() < std::f32::EPSILON) }
+    }
+
+    #[test]
+    fn test_aabb_from() {
+        let b = AABB::from(Point3::new(1.0, 3.0, 5.0), Point3::new(6.0, 4.0, 2.0));
+        assert_eq!(b.lower, Point3::new(1.0, 3.0, 5.0));
+        assert_eq!(b.upper, Point3::new(6.0, 4.0, 2.0));
+        assert_eq_float!(b.left(), 1.0);
+        assert_eq_float!(b.right(), 6.0);
+        assert_eq_float!(b.top(), 3.0);
+        assert_eq_float!(b.bottom(), 4.0);
+        assert_eq_float!(b.front(), 5.0); // note that these are in the wrong order
+        assert_eq_float!(b.back(), 2.0); // AABB::from() does not check point ordering
+    }
+}

@@ -9,8 +9,8 @@ use cgmath::Point3;
 
 
 // local min/max funcs for f32 since it isn't Ord and doesn't work with std::min/max
-fn float_min(a: f32, b: f32) -> f32 { match a < b { true => a, false => b } }
-fn float_max(a: f32, b: f32) -> f32 { match a > b { true => a, false => b } }
+fn float_min(a: f32, b: f32) -> f32 { if a < b { a } else { b } }
+fn float_max(a: f32, b: f32) -> f32 { if a > b { a } else { b } }
 
 
 /// An axis-aligned bounding box. Represented by a cuboid defined by two points. As long as the
@@ -124,6 +124,15 @@ impl AABB {
         let z2 = back;
         self.lower.z = float_min(z1, z2);
         self.upper.z = float_max(z1, z2);
+    }
+}
+
+impl Default for AABB {
+    fn default() -> Self {
+        AABB {
+            lower: Point3::new(0.0, 0.0, 0.0),
+            upper: Point3::new(0.0, 0.0, 0.0)
+        }
     }
 }
 

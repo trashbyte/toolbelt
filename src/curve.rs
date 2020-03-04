@@ -1,6 +1,6 @@
 use crate::lerp;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct FloatCurvePoint {
     pub time: f32,
     pub value: f32,
@@ -15,7 +15,7 @@ impl FloatCurvePoint {
 
 // implementation note: points assumed to be sorted in time order
 // maintain this invariant in all internal functions
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct FloatCurve {
     points: Vec<FloatCurvePoint>,
 }
@@ -42,7 +42,7 @@ impl FloatCurve {
 
     /// returns index of new element
     pub fn add_point(&mut self, time: f32, value: f32, arrive_tangent: f32, leave_tangent: f32) -> usize {
-        if self.points.len() < 1 {
+        if self.points.is_empty() {
             // no points yet, just add this one
             self.points.push(FloatCurvePoint::new(time, value, arrive_tangent, leave_tangent));
             return 0;
@@ -96,7 +96,7 @@ impl FloatCurve {
     }
 
     pub fn get_value(&self, time: f32) -> f32 {
-        if self.points.len() < 1 {
+        if self.points.is_empty() {
             // no points, return zero
             return 0.0;
         }
@@ -109,7 +109,7 @@ impl FloatCurve {
 
         let mut i = 0;
         loop {
-            if (self.points[i].time - time).abs() < 0.000001 {
+            if (self.points[i].time - time).abs() < 0.000_001 {
                 // we're sitting right on a point, just return that value
                 return self.points[i].value;
             }

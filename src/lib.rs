@@ -57,20 +57,19 @@ pub fn lerp(a: f32, b: f32, alpha: f32) -> f32 {
     (a * (1.0 - alpha)) + (b * alpha)
 }
 
-#[allow(dead_code)]
-pub fn aabb_plane_intersection(bmin: Point3<f32>, bmax: Point3<f32>, p: Plane) -> bool {
+pub fn aabb_plane_intersection(bmin: Point3<f32>, bmax: Point3<f32>, plane: Plane) -> bool {
     // Convert AABB to center-extents representation
-    let c = (bmax + bmin.to_vec()) * 0.5; // Compute AABB center
-    let e = bmax - c.to_vec(); // Compute positive extents
+    let center = (bmax + bmin.to_vec()) * 0.5; // Compute AABB center
+    let extents = bmax - center.to_vec(); // Compute positive extents
 
-    // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-    let r = e.x*((p.n.x).abs()) + e.y*((p.n.y).abs()) + e.z*((p.n.z).abs());
+    // Compute the projection interval radius of b onto L(t) = center + t * normal
+    let proj_int_radius = extents.x*((plane.n.x).abs()) + extents.y*((plane.n.y).abs()) + extents.z*((plane.n.z).abs());
 
     // Compute distance of box center from plane
-    let s = dot(p.n, c.to_vec()) - p.d;
+    let dist = dot(plane.n, center.to_vec()) - plane.d;
 
     // Intersection occurs when distance s falls within [-r,+r] interval
-    s.abs() <= r
+    dist.abs() <= proj_int_radius
 }
 
 pub fn aabb_frustum_intersection(bmin: Point3<f32>, bmax: Point3<f32>, p: FrustumPlanes) -> bool {

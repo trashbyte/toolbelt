@@ -1,3 +1,5 @@
+//! Helper functions for iterating over files and folders
+
 use std::path::Path;
 use walkdir::{WalkDir, DirEntry};
 

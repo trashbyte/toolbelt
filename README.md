@@ -8,3 +8,5 @@
 ![doc coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fdoc-coverage.s3-us-west-2.amazonaws.com%2Ftoolbelt.json)
 
 a collection of simple rust utilities
+
+still a work in progress

@@ -1,7 +1,7 @@
 [package]
 name = "toolbelt"
 description = "a collection of simple rust utilities"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["trashbyte <github@trashbyte.io>"]
 edition = "2018"
 repository = "https://github.com/trashbyte/toolbelt"
@@ -10,6 +10,10 @@ categories = ["development-tools", "game-development"]
 keywords = ["tools", "utilities", "utils"]
 
 [dependencies]
-cgmath = { version = "0.17.0", features = [ "swizzle" ] }
-noise = "0.6.0"
-walkdir = "2.3.1"
+cgmath = { version = "~0.18.0", features = [ "swizzle", "serde" ] }
+serde = "1.0"
+serde_derive = "1.0"
+noise = "~0.7.0"
+walkdir = "~2.3.2"
+num = "~0.4.0"
+rustversion = "~1.0.7"

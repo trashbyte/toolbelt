@@ -1,3 +1,5 @@
+//! 3D transform with position, rotation, and scale.
+
 use cgmath::{Point3, Quaternion, Vector3, Matrix4, EuclideanSpace};
 
 

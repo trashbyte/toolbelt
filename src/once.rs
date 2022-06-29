@@ -69,7 +69,7 @@ unsafe impl Sync for DoOnceSync {}
 /// A simple once-initialized immutable-ish reference for easy global statics.
 ///
 /// ```rs
-/// static SOME_CONSTANT: InitOnce<SomeType> = SOME_CONSTANT::uninitialized();
+/// static SOME_CONSTANT: InitOnce<SomeType> = InitOnce::uninitialized();
 /// SOME_CONSTANT.initialize(value);
 /// SOME_CONSTANT.get()
 /// ```
@@ -125,12 +125,7 @@ impl<T> InitOnce<T> {
         if prev {
             return Err(format!("Tried to initialize InitOnce<{}> twice at the same time", std::any::type_name::<T>()));
         }
-
-        unsafe {
-            if (*self.inner.get()).is_none() {
-                self.initialize(func())?;
-            }
-        }
+        self.init_internal(func())?;
         self.lock.store(false, Ordering::SeqCst);
         Ok(self.get())
     }
@@ -143,6 +138,12 @@ impl<T> InitOnce<T> {
         if prev {
             return Err(format!("Tried to initialize InitOnce<{}> twice concurrently", std::any::type_name::<T>()));
         }
+        self.init_internal(value)?;
+        self.lock.store(false, Ordering::SeqCst);
+        Ok(())
+    }
+
+    fn init_internal(&self, value: T) -> Result<(), String> {
         unsafe {
             let ptr = self.inner.get();
             if (*ptr).is_some() {
@@ -150,7 +151,6 @@ impl<T> InitOnce<T> {
             }
             ptr.write(Some(value));
         }
-        self.lock.store(false, Ordering::SeqCst);
         Ok(())
     }
 }

@@ -1,5 +1,9 @@
 //! Primitives for doing something exactly once.
 
+#[cfg(test)]
+#[doc(hidden)]
+mod tests;
+
 use std::cell::UnsafeCell;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -9,12 +13,14 @@ use std::sync::atomic::{AtomicBool, Ordering};
 ///
 /// e.g.
 /// ```
+/// # use toolbelt::once::DoOnce;
 /// let mut once_task = DoOnce::new();
 /// loop {
 ///     once_task.do_once(|| {
 ///         // this closure only runs once
-///     })
+///     });
 ///     //...
+/// # break
 /// }
 /// ```
 pub struct DoOnce(bool);
@@ -39,12 +45,14 @@ impl DoOnce {
 ///
 /// e.g.
 /// ```
+/// # use toolbelt::once::DoOnceSync;
 /// let once_task = DoOnceSync::new();
 /// loop {
 ///     once_task.do_once(|| {
 ///         // this closure only runs once
-///     })
+///     });
 ///     //...
+/// # break
 /// }
 /// ```
 pub struct DoOnceSync(AtomicBool);

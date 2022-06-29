@@ -120,13 +120,8 @@ impl<T> InitOnce<T> {
     /// Err only if the value is currently being initialized on another thread, since we can neither
     /// initialize it ourselves nor return a valid reference. Always safe to `unwrap()` in a
     /// synchronous, single-threaded context.
-    pub fn get_or_init<F>(&self, func: F) -> Result<&T, String> where F: Fn() -> T {
-        let prev = self.lock.swap(true, Ordering::SeqCst);
-        if prev {
-            return Err(format!("Tried to initialize InitOnce<{}> twice at the same time", std::any::type_name::<T>()));
-        }
-        self.init_internal(func())?;
-        self.lock.store(false, Ordering::SeqCst);
+    pub fn get_or_init<F>(&self, func: F) -> Result<&T, String> where F: FnOnce() -> T {
+        self.init_internal(func, false)?;
         Ok(self.get())
     }
 
@@ -134,24 +129,28 @@ impl<T> InitOnce<T> {
     /// Utilizes interior mutability so only `&self` is required.
     /// If already initialized, ignores the new value and returns Err.
     pub fn initialize(&self, value: T) -> Result<(), String> {
-        let prev = self.lock.swap(true, Ordering::SeqCst);
-        if prev {
-            return Err(format!("Tried to initialize InitOnce<{}> twice concurrently", std::any::type_name::<T>()));
-        }
-        self.init_internal(value)?;
-        self.lock.store(false, Ordering::SeqCst);
+        self.init_internal(|| value, true)?;
         Ok(())
     }
 
-    fn init_internal(&self, value: T) -> Result<(), String> {
+    fn init_internal<F>(&self, func: F, fail_on_reinit: bool) -> Result<&T, String> where F: FnOnce() -> T {
+        let prev = self.lock.swap(true, Ordering::SeqCst);
+        if prev {
+            return Err(format!("Tried to initialize InitOnce<{}> twice at the same time", std::any::type_name::<T>()));
+        }
         unsafe {
             let ptr = self.inner.get();
             if (*ptr).is_some() {
-                return Err(format!("Tried to initialize InitOnce<{}> a second time", std::any::type_name::<T>()));
+                if fail_on_reinit {
+                    return Err(format!("Tried to initialize InitOnce<{}> a second time", std::any::type_name::<T>()));
+                }
             }
-            ptr.write(Some(value));
+            else {
+                ptr.write(Some(func()));
+            }
         }
-        Ok(())
+        self.lock.store(false, Ordering::SeqCst);
+        Ok(self.get())
     }
 }
 

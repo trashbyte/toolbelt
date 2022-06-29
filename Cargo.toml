@@ -8,6 +8,9 @@ repository = "https://github.com/trashbyte/toolbelt"
 license = "MIT"
 categories = ["development-tools", "game-development"]
 keywords = ["tools", "utilities", "utils"]
+exclude = [
+    ".github/*"
+]
 
 [dependencies]
 cgmath = { version = "~0.18.0", features = [ "swizzle", "serde" ] }

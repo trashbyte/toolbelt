@@ -8,6 +8,7 @@ use std::rc::Rc;
 
 
 #[repr(transparent)]
+/// Just a wrapper around Rc<RefCell<T>> to make using it a bit cleaner.
 pub struct SimpleCell<T: ?Sized>(Rc<RefCell<T>>);
 
 impl<T> SimpleCell<T> {

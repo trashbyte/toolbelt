@@ -27,6 +27,14 @@ fn DoOnceSync_only_executes_once() {
 }
 
 #[test]
+fn DoOnce_done() {
+    let mut task = DoOnce::new();
+    assert_eq!(task.done(), false);
+    task.do_once(||{});
+    assert_eq!(task.done(), true);
+}
+
+#[test]
 #[should_panic]
 fn InitOnce_uninitialized_get_should_panic() {
     let cell: InitOnce<u32> = InitOnce::uninitialized();
